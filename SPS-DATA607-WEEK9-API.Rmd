@@ -1,0 +1,115 @@
+---
+title: "DATA 607 WEEK 9 - API  Calls -"
+author: "Tage N Singh"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
+---
+
+
+```yaml
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+```
+
+##   -   The Assignment   -    
+### Choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and transform it into an R DataFrame
+
+
+## Loading Libraries
+
+```{r setup}
+
+library(httr)
+library(jsonlite)
+library(dplyr)
+library(kableExtra)
+library(devtools)
+library(blsAPI)
+
+```
+
+
+## Setup for connection to NY Times API
+
+
+```{r api-connect}
+
+## The following are the calls to the API  - We are testing two (2) calls
+
+## This call is for the most popular articles
+
+response1 = GET("https://api.nytimes.com/svc/mostpopular/v2/emailed/7.json?api-key=ZYSmVxxjIrQ4Hk2wiWUUZCUcaslz3Q8n")
+
+## This call is for the Top Stories currently trending
+
+response2= GET("https://api.nytimes.com/svc/topstories/v2/arts.json?api-key=ZYSmVxxjIrQ4Hk2wiWUUZCUcaslz3Q8n")
+
+## The following checks the status of the call - A response of 200 is normal - 
+
+cat("The status for Most Popular returned is:", response1$status_code)
+
+cat("The status for Top Stories returned is:", response2$status_code)
+
+## Converting the JSon data
+
+data1 <- fromJSON(rawToChar(response1$content))
+
+data2 <- fromJSON(rawToChar(response2$content))
+
+names(data1)
+
+names(data2)
+
+## Converting to Dataframes
+
+df1 <- data.frame(data1$results, stringsAsFactors = FALSE)
+
+df2 <- data.frame(data2$results, stringsAsFactors = FALSE)
+
+## Adding structure to the dataframes using the Kable package
+
+## Viewing the data
+
+df1 %>% 
+  select(title, section, published_date) %>% 
+  rename("Title" = title, "Section" = section, "Published Date" = published_date) %>% 
+  kable
+
+
+df2 %>% 
+  select(title, section, published_date) %>% 
+  rename("Title" = title, "Section" = section, "Published Date" = published_date) %>% 
+  kable
+
+## Confirming that the datasets are in a dataframe
+
+truefalse <- is.data.frame(df1)
+cat("Is df1 a dataframe?", truefalse)
+
+truefalse <- is.data.frame(df2)
+cat("Is df2 a dataframe?", truefalse)
+
+```
+
+## The following is a test scenario for extracting datat from the Bureau of Labor Statistice
+## - It is only a TEST - 
+
+```{r api-bls}
+
+response3 <- blsAPI('APU000070111')
+
+json <- fromJSON(response3) 
+
+json
+
+
+```
+
+
+
+
